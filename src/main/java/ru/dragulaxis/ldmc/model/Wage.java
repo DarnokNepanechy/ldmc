@@ -10,11 +10,11 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Wage {
     // Ставка (Вычисляемое значение=Оклад/22)
-    Double bid;
+    double bid;
     // Оклад по рабочим дням (Ставка*Рабочих дней)
-    Double salaryOnWorkingDays;
+    double salaryOnWorkingDays;
     // Мотивационная часть
-    Double motivationalPart;
+    double motivationalPart;
     // С учетом оклада (Результат работы калькулятора)(Сумма)
-    Double total;
+    double total;
 }

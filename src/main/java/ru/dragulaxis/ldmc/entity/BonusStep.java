@@ -1,4 +1,4 @@
-package ru.dragulaxis.ldmc.model;
+package ru.dragulaxis.ldmc.entity;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

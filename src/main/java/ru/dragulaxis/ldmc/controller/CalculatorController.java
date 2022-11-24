@@ -1,95 +1,86 @@
 package ru.dragulaxis.ldmc.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.objenesis.strategy.BaseInstantiatorStrategy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.dragulaxis.ldmc.model.EmployeeInfo;
-import ru.dragulaxis.ldmc.model.BonusStep;
-import ru.dragulaxis.ldmc.model.PlanStep;
+import ru.dragulaxis.ldmc.entity.BonusStep;
+import ru.dragulaxis.ldmc.entity.PlanStep;
 import ru.dragulaxis.ldmc.model.Wage;
-import ru.dragulaxis.ldmc.service.EmployeeInfoService;
+import ru.dragulaxis.ldmc.service.CalculatorService;
 
 @Controller
 @RequestMapping
 public class CalculatorController {
-
-    EmployeeInfoService employeeInfoService;
+    CalculatorService calculatorService;
 
     @Autowired
-    public CalculatorController(EmployeeInfoService employeeInfoService) {
-        this.employeeInfoService = employeeInfoService;
+    public CalculatorController(CalculatorService calculatorService) {
+        this.calculatorService = calculatorService;
     }
 
     @GetMapping
     public String getCalculatorPage(Model model) {
-        EmployeeInfo info = new EmployeeInfo();
-        model.addAttribute("info", info);
+        model.addAttribute("info", new EmployeeInfo());
+
         return "index";
     }
 
     @PostMapping("/calculator")
     public String getPage(Model model, @ModelAttribute(value = "info") EmployeeInfo employeeInfo) {
-
-        String errors = employeeInfoService.validation(employeeInfo);
-
-        System.out.println(errors);
-
-        if (!errors.equals("")) {
-            model.addAttribute("errors", errors);
-        } else {
-            Wage wage = employeeInfoService.calculateMotivation(employeeInfo);
-            model.addAttribute("bid", String.format("%,.2f", wage.getBid()));
-            model.addAttribute("salaryOnWorkingDays", String.format("%,.2f", wage.getSalaryOnWorkingDays()));
-            model.addAttribute("motivationalPart", String.format("%,.0f", Math.ceil(wage.getMotivationalPart())));
-            model.addAttribute("total", String.format("%,.0f", Math.ceil(wage.getTotal())));
-        }
+        Wage wage = calculatorService.calculateMotivation(employeeInfo);
+        model.addAttribute("bid", String.format("%,.2f", wage.getBid()));
+        model.addAttribute("salaryOnWorkingDays", String.format("%,.2f", wage.getSalaryOnWorkingDays()));
+        model.addAttribute("motivationalPart", String.format("%,.2f", wage.getMotivationalPart()));
+        model.addAttribute("total", String.format("%,.2f", wage.getTotal()));
 
         return "index";
     }
 
     @GetMapping("/bonussteps")
     public String getBonusPage(Model model) {
-        model.addAttribute("steps", employeeInfoService.getAllBonusSteps());
+        model.addAttribute("url", "/bonussteps");
+        model.addAttribute("steps", calculatorService.getAllBonusSteps());
+        model.addAttribute("step", new BonusStep());
 
-        BonusStep bonusStep = new BonusStep();
-        model.addAttribute("step", bonusStep);
-
-        return "bonussteps";
+        return "steps";
     }
 
-    @GetMapping(path = "/bonussteps/delete/{id}")
+    @GetMapping("/bonussteps/delete/{id}")
     public String deleteBonusStep(@PathVariable("id") Long id) {
-        employeeInfoService.deleteBonusStep(id);
+        calculatorService.deleteBonusStep(id);
+
         return "redirect:/bonussteps";
     }
 
-    @PostMapping(path = "/bonussteps/edit")
+    @PostMapping("/bonussteps/edit")
     public String editBonusStep(@ModelAttribute(value = "step") BonusStep step) {
-        employeeInfoService.editBonusStep(step);
+        calculatorService.editBonusStep(step);
+
         return "redirect:/bonussteps";
     }
 
     @GetMapping("/plansteps")
     public String getPlanPage(Model model) {
-        model.addAttribute("steps", employeeInfoService.getAllPlanSteps());
+        model.addAttribute("url", "/plansteps");
+        model.addAttribute("steps", calculatorService.getAllPlanSteps());
+        model.addAttribute("step",  new PlanStep());
 
-        PlanStep planStep = new PlanStep();
-        model.addAttribute("step", planStep);
-
-        return "plansteps";
+        return "steps";
     }
 
-    @GetMapping(path = "/plansteps/delete/{id}")
+    @GetMapping("/plansteps/delete/{id}")
     public String deletePlanStep(@PathVariable("id") Long id) {
-        employeeInfoService.deletePlanStep(id);
+        calculatorService.deletePlanStep(id);
+
         return "redirect:/plansteps";
     }
 
-    @PostMapping(path = "/plansteps/edit")
+    @PostMapping("/plansteps/edit")
     public String editPlanStep(@ModelAttribute(value = "step") PlanStep step) {
-        employeeInfoService.editPlanStep(step);
+        calculatorService.editPlanStep(step);
+
         return "redirect:/plansteps";
     }
 }
