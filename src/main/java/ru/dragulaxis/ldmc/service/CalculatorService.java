@@ -48,7 +48,7 @@ public class CalculatorService {
                 .collect(Collectors.toList());
     }
 
-    public Object getAllPlanSteps() {
+    public List<PlanStep> getAllPlanSteps() {
         return planStepRepository.findAll().stream()
                 .sorted(Comparator.comparingInt(PlanStep::getMin))
                 .collect(Collectors.toList());
@@ -56,7 +56,7 @@ public class CalculatorService {
 
     // Перебирает все диапазоны с коеффициетами. Если чило не попадает в диапазон, то коеффициент равен 0
     float getBonusFactor(double margin) {
-        List<BonusStep> steps = bonusStepRepository.findAll();
+        List<BonusStep> steps = getAllBonusSteps();
 
         for (BonusStep step: steps) {
             if (isBetween(margin, step.getMin(), step.getMax())) return step.getCft();
@@ -67,7 +67,7 @@ public class CalculatorService {
 
     double planCompletionRate(EmployeeInfo info) {
         double percent = info.getRevenuePlan() / info.getRevenue() * 100;
-        List<PlanStep> steps = planStepRepository.findAll();
+        List<PlanStep> steps = getAllPlanSteps();
 
         for (PlanStep step: steps) {
             if (isBetween(percent, step.getMin(), step.getMax())) return step.getCft();
